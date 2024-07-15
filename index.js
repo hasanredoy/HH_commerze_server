@@ -25,14 +25,35 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    const db = client.db('HH_CommerzeDB')
+
+// users collection 
+    const usersCollection = db.collection('users')
+   
+    // get users collection 
+    app.get('/users', async(req,res)=>{
+     const result = await usersCollection.find().toArray()
+     res.send(result)
+    })
+    
+    
+    // route for register new user
+    app.post('/users',async(req,res)=>{
+      const userData = req.body;
+      const email = userData?.email;
+      const filter={email : email}
+      const userExist = await usersCollection.find(email).toArray()
+      if(userExist){
+        return res.send('user  already exist')
+      }
+      const result =await usersCollection.insertOne(userData)
+      res.send(result)
+      
+      
+    })
+
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    
   }
 }
 run().catch(console.dir);
