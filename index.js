@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors')
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
+let bcrypt = require('bcryptjs');
+let salt = bcrypt.genSaltSync(10);
 
 const port = process.env.PORT || 5000
 // dealer app 
@@ -13,7 +15,7 @@ app.use(express.json())
 
 // connect mongo db 
 const uri = process.env.MONGO_URI;
-
+console.log(uri);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -25,6 +27,8 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    await client.connect();
+   
     const db = client.db('HH_CommerzeDB')
 
 // users collection 
@@ -40,9 +44,14 @@ async function run() {
     // route for register new user
     app.post('/users',async(req,res)=>{
       const userData = req.body;
+      const hashedPin=bcrypt.hashSync(userData.pin, salt);
+      console.log(hashedPin);
+      const newUserData = {...userData,hashedPin}
+      console.log({newUserData});
       const email = userData?.email;
-      const filter={email : email}
-      const userExist = await usersCollection.find(email).toArray()
+      const phone = userData?.phone;
+      const filter={email,phone}
+      const userExist = await usersCollection.findOne(filter)
       if(userExist){
         return res.send('user  already exist')
       }
@@ -52,6 +61,9 @@ async function run() {
       
     })
 
+     // Send a ping to confirm a successful connection
+     await client.db("admin").command({ ping: 1 });
+     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     
   }
