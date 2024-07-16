@@ -61,20 +61,30 @@ async function run() {
       
       const filter = {$or:[{email:userEmail},{phone:userPhone}]}
       const result = await usersCollection.findOne(filter)
+      // match pin 
       const checkPin = bcrypt.compareSync(userPin, result.pin);
+      // get user role
       const role = result?.role
-      console.log(result);
+      // make user object to retain while user login
+      const user = {
+        name:result.name,
+        email:result.email,
+        phone:result.phone,
+        balance: role=="user"?result.user_balance:result.agent_balance
+
+      }
+      // console.log(result);
       if(!checkPin){
        return res.send({message:'incorrect pin',role})
       }
-     if(checkPin&&result.status=='pending'){
-     return  res.send({message:'Request Under Process',role})
+    //  if(checkPin&&result.status=='pending'){
+    //  return  res.send({message:'Request Under Process',role})
       
-    }
+    // }
      if(checkPin&&result.status=='approved'){
-     return  res.send({message:'user',role})
-      
+       
     }
+    return  res.send({message:'user',user,role})
     })
     
     
