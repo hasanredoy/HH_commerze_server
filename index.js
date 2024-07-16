@@ -39,6 +39,16 @@ async function run() {
      const result = await usersCollection.find().toArray()
      res.send(result)
     })
+    // // get user role
+    // app.get('/users/:email', async(req,res)=>{
+    //   const email = req.params.email
+    //  const result = await usersCollection.findOne({email})
+    //  const userStatus = result?.role
+     
+    //  res.send({role:userStatus})
+    // })
+
+
     // get users for login  
     app.post('/user_login', async(req,res)=>{
       // get user data 
@@ -52,16 +62,17 @@ async function run() {
       const filter = {$or:[{email:userEmail},{phone:userPhone}]}
       const result = await usersCollection.findOne(filter)
       const checkPin = bcrypt.compareSync(userPin, result.pin);
+      const role = result?.role
       console.log(result);
       if(!checkPin){
-       return res.send({message:'incorrect pin'})
+       return res.send({message:'incorrect pin',role})
       }
      if(checkPin&&result.status=='pending'){
-     return  res.send({message:'Request Under Process'})
+     return  res.send({message:'Request Under Process',role})
       
     }
      if(checkPin&&result.status=='approved'){
-     return  res.send({message:'user'})
+     return  res.send({message:'user',role})
       
     }
     })
