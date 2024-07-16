@@ -15,7 +15,7 @@ app.use(express.json())
 
 // connect mongo db 
 const uri = process.env.MONGO_URI;
-console.log(uri);
+// console.log(uri);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -52,16 +52,18 @@ async function run() {
       const filter = {$or:[{email:userEmail},{phone:userPhone}]}
       const result = await usersCollection.findOne(filter)
       const checkPin = bcrypt.compareSync(userPin, result.pin);
-      console.log(checkPin);
+      console.log(result);
       if(!checkPin){
        return res.send({message:'incorrect pin'})
       }
-    //  const 
      if(checkPin&&result.status=='pending'){
      return  res.send({message:'Request Under Process'})
       
     }
+     if(checkPin&&result.status=='approved'){
      return  res.send({message:'user'})
+      
+    }
     })
     
     
@@ -71,7 +73,7 @@ async function run() {
       const userData = req.body;
       // hash pin 
       const hashedPin=bcrypt.hashSync(userData.pin, salt);
-      console.log(hashedPin);
+      // console.log(hashedPin);
       //make new user data
       const newUserData = {
         name: userData?.name,
@@ -83,7 +85,7 @@ async function run() {
         role: userData?.role,
         status: userData?.status
       }
-      console.log({newUserData});
+      // console.log({newUserData});
 
       const email = userData?.email;
       const phone = userData?.phone;
