@@ -39,14 +39,14 @@ async function run() {
      const result = await usersCollection.find().toArray()
      res.send(result)
     })
-    // // get user role
-    // app.get('/users/:email', async(req,res)=>{
-    //   const email = req.params.email
-    //  const result = await usersCollection.findOne({email})
-    //  const userStatus = result?.role
+    // get user role
+    app.get('/user_role', async(req,res)=>{
+      const email = req?.query?.email
+     const result = await usersCollection.findOne({email})
+     const userStatus = result?.role
      
-    //  res.send({role:userStatus})
-    // })
+     res.send({role:userStatus})
+    })
 
 
     // get users for login  
