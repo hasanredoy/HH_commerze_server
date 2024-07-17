@@ -52,28 +52,33 @@ async function run() {
     // get users for login  
     app.post('/user_login', async(req,res)=>{
       // get user data 
-      const userDataForLogin = req.body
-      const userEmail= userDataForLogin.email
-      const userPhone= userDataForLogin.phone
-      const userPin= userDataForLogin.pin
+      const userDataForLogin = req?.body
+      const userEmail= userDataForLogin?.email
+      const userPhone= userDataForLogin?.phone
+      const userPin= userDataForLogin?.pin
+      
 
       // check PIN 
       
       const filter = {$or:[{email:userEmail},{phone:userPhone}]}
       const result = await usersCollection.findOne(filter)
       // match pin 
-      const checkPin = bcrypt.compareSync(userPin, result.pin);
+      console.log('userpin==',userPin,'resutpin==',result?.pin);
+      const checkPin = bcrypt.compareSync(userPin, result?result?.pin:'111');
       // get user role
       const role = result?.role
       // make user object to retain while user login
       const user = {
-        name:result.name,
-        email:result.email,
-        phone:result.phone,
-        balance: role=="user"?result.user_balance:result.agent_balance
+        name:result?.name,
+        email:result?.email,
+        phone:result?.phone,
+        balance: role=="user"?result?.user_balance:result?.agent_balance
 
       }
       // console.log(result);
+      if(!result){
+       return res.send({message:'invalid number/email',role})
+      }
       if(!checkPin){
        return res.send({message:'incorrect pin',role})
       }
